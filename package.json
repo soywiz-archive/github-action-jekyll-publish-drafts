@@ -1,0 +1,24 @@
+{
+  "name": "scripts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "script.ts",
+  "scripts": {
+    "install_and_start": "npm install && npx ts-node script.ts",
+    "start": "npx ts-node script.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^12.12.6"
+  },
+  "dependencies": {
+    "@types/sprintf": "^0.1.0",
+    "@types/yaml": "^1.2.0",
+    "sprintf": "^0.1.5",
+    "ts-node": "^8.4.1",
+    "typescript": "^3.7.2",
+    "yaml": "^1.7.2"
+  }
+}
