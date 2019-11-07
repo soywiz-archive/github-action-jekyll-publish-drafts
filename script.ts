@@ -49,9 +49,14 @@ async function main() {
         await exec(`git config --global user.name "github-action"`);
     }
 
-    const folder = JEKYLL_PATH;
+    const folder = path.resolve(JEKYLL_PATH);
+    console.warn(`Exploring... ${folder}/_drafts`);
+    let fileCount = 0;
     for await (const file of walk(`${folder}/_drafts`)) {
+        if ((await fs.stat(file)).isDirectory()) continue;
+        fileCount++;
         const basename = path.basename(file);
+
         const content = await fs.readFile(file, "ascii");
         const parts = content.split(/---/g);
         if (parts[0] == "" && parts[1] != "") {
@@ -72,6 +77,7 @@ async function main() {
             }
         }
     }
+    console.warn(`Found ${fileCount} files. Moved drafts: ${draftCount}`);
 
     if (draftCount > 0) {
         const remote_repo=`https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git`;
