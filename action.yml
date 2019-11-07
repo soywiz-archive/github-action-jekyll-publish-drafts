@@ -1,0 +1,25 @@
+name: 'Jekyll Publish Drafts'
+description: 'Publish drafts with a date greater than the current time'
+author: 'soywiz'
+branding:
+  icon: upload-cloud
+  color: green
+inputs:
+  github_token:
+    description: 'Token for the repo. Can be passed in using $\{{ secrets.GITHUB_TOKEN }}'
+    required: true
+  github_repository:
+    description: 'Repository name to push. Default or empty value represents current github repository (${GITHUB_REPOSITORY})'
+    default: ''
+    required: false
+  branch:
+    description: 'Destination branch to push changes'
+    required: false
+    default: 'master'
+  jekyll_path:
+    description: 'Directory containing the jekyll root folder.'
+    required: false
+    default: '.'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'

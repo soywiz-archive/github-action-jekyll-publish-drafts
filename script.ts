@@ -28,15 +28,16 @@ function formatDate(date: Date) {
 }
 
 async function main() {
-    const JEKYLL_PATH = env.JEKYLL_PATH || ".";
+    const JEKYLL_PATH = env.JEKYLL_PATH || env.INPUT_JEKYLL_PATH || ".";
 
     const now = new Date();
 
     let draftCount = 0;
 
-    const GITHUB_REPOSITORY = env.GITHUB_REPOSITORY;
-    const GITHUB_ACTOR = env.GITHUB_ACTOR;
-    const INPUT_BRANCH = env.INPUT_BRANCH || "master";
+    const GITHUB_REPOSITORY = env.GITHUB_REPOSITORY || env.INPUT_GITHUB_REPOSITORY;
+    const GITHUB_ACTOR = env.GITHUB_ACTOR || env.INPUT_GITHUB_ACTOR;
+    const INPUT_BRANCH = env.BRANCH || env.INPUT_BRANCH || "master";
+    const GITHUB_TOKEN = env.GITHUB_TOKEN || env.INPUT_GITHUB_TOKEN;
 
     //console.warn(env);
     console.warn(`Now is ${now}`);
@@ -73,7 +74,7 @@ async function main() {
     }
 
     if (draftCount > 0) {
-        const remote_repo=`https://${env.GITHUB_ACTOR}:${env.INPUT_GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git`;
+        const remote_repo=`https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git`;
         await exec(`git commit -m"publish drafts"`);
         await exec(`git push "${remote_repo}" HEAD:${INPUT_BRANCH} --follow-tags --force;`);
     }
