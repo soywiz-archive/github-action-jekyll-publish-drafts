@@ -1,7 +1,7 @@
 FROM alpine:latest
 
 LABEL "com.github.actions.name"="Jekyll Publish Drafts"
-LABEL "com.github.actions.description"="Publish drafts with a date greater than the current time"
+LABEL "com.github.actions.description"="Publish Jekyll drafts with a date greater than the current time"
 LABEL "com.github.actions.icon"="upload-cloud"
 LABEL "com.github.actions.color"="green"
 
