@@ -6,8 +6,9 @@ import {sprintf} from "sprintf";
 import * as util from "util";
 import * as os from "os";
 
-const env = process.env
-const exec = util.promisify(child_process.exec)
+const env = process.env;
+const exec = util.promisify(child_process.exec);
+const execFile = util.promisify(child_process.execFile);
 
 //async function* walk(dir: string): AsyncIterableIterator<{file: string, stats: Stats}> {
 async function* walk(dir: string): AsyncIterableIterator<string> {
@@ -38,6 +39,9 @@ async function main() {
     const GITHUB_ACTOR = env.GITHUB_ACTOR || env.INPUT_GITHUB_ACTOR;
     const INPUT_BRANCH = env.BRANCH || env.INPUT_BRANCH || "master";
     const GITHUB_TOKEN = env.GITHUB_TOKEN || env.INPUT_GITHUB_TOKEN;
+    const GIT_USERNAME = env.GIT_USERNAME || env.INPUT_GIT_USERNAME || "github-action";
+    const GIT_EMAIL = env.GIT_EMAIL || env.INPUT_GIT_EMAIL || "nobody@localhost";
+    const GIT_MESSAGE = env.GIT_MESSAGE || env.INPUT_GIT_MESSAGE || "Publish drafts";
 
     //console.warn(env);
     console.warn(`Now is ${now}`);
@@ -45,8 +49,8 @@ async function main() {
     console.warn(`GITHUB_ACTOR=${GITHUB_ACTOR}`);
 
     if (GITHUB_ACTOR) {
-        await exec(`git config --global user.email "nobody@localhost"`);
-        await exec(`git config --global user.name "github-action"`);
+        await execFile('git', ['config', '--global', 'user.email', GIT_EMAIL]);
+        await execFile('git', ['config', '--global', 'user.name', GIT_USERNAME]);
     }
 
     const folder = path.resolve(JEKYLL_PATH);
@@ -69,8 +73,8 @@ async function main() {
                         const nfilename = `${formatDate(rdate)}-${basename}`;
                         const nfile = `${folder}/_posts/${nfilename}`;
 
-                        console.warn(file, "-->", nfile)
-                        await exec(`git mv "${file}" ${nfile}`)
+                        console.warn(file, "-->", nfile);
+                        await execFile('git', ['mv', file, nfile]);
                         draftCount++
                     }
                 }
@@ -81,16 +85,17 @@ async function main() {
 
     if (draftCount > 0) {
         const remote_repo=`https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git`;
-        await exec(`git commit -m"publish drafts"`);
-        await exec(`git push "${remote_repo}" HEAD:${INPUT_BRANCH} --follow-tags --force;`);
+        await execFile('git', ['commit', '-m', GIT_MESSAGE]);
+        await execFile('git', ['push', remote_repo, `HEAD:${INPUT_BRANCH}`, '--follow-tags', '--force']);
     }
 }
 
 (async () => {
     try {
         await main();
+        //console.warn(await execFile('echo', ["hello", "world"]))
     } catch (e) {
-        console.error(e)
+        console.error(e);
         process.exit(-1)
     }
 })();
