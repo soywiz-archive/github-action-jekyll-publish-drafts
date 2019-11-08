@@ -1,10 +1,9 @@
-import {promises as fs, Stats} from "fs"
+// https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-a-javascript-action
+
+import {promises as fs} from "fs"
 import child_process from "child_process"
 import path from "path"
-import yaml from "yaml"
-import {sprintf} from "sprintf";
 import * as util from "util";
-import * as os from "os";
 
 const env = process.env;
 const exec = util.promisify(child_process.exec);
@@ -16,7 +15,7 @@ async function* walk(dir: string): AsyncIterableIterator<string> {
         const filepath = path.join(dir, file);
         const stats = await fs.stat(filepath);
         if (stats.isDirectory()) {
-            yield*(walk(filepath));
+            yield* (walk(filepath));
         } else if (stats.isFile()) {
             //yield({ file: filepath, stats: stats });
             yield(filepath);
@@ -24,8 +23,30 @@ async function* walk(dir: string): AsyncIterableIterator<string> {
     }
 }
 
+function zeroPad(num: number, count: number, radix: number = 10): string {
+    if (num < 0) return "-" + zeroPad(-num, count, radix);
+    const str = (num | 0).toString(radix);
+    if (str.length > count) return str;
+    return ("0".repeat(count) + str).substr(-count);
+}
+
 function formatDate(date: Date) {
-    return sprintf("%04d-%02d-%02d", date.getFullYear(), date.getMonth(), date.getDate());
+    return zeroPad(date.getFullYear(), 4) + "-" + zeroPad(date.getMonth(), 2) + "-" + zeroPad(date.getDate(), 2)
+}
+
+function parseTopLevelObjectYaml(yaml: string): any {
+    //const out = new Map<string, string>();
+    const out: any = {};
+    for (const line of yaml.split("\n")) {
+        if (line.trimLeft() != line) continue;
+        const colonIdx = line.indexOf(":");
+        if (colonIdx >= 0) {
+            const key = line.substr(0, colonIdx).trim();
+            let value = line.substr(colonIdx + 1).trim().replace(/^"+/, "").replace(/"+$/, "");
+            out[key] = value;
+        }
+    }
+    return out
 }
 
 async function main() {
@@ -64,7 +85,7 @@ async function main() {
         const content = await fs.readFile(file, "ascii");
         const parts = content.split(/---/g);
         if (parts[0] == "" && parts[1] != "") {
-            const frontMatter = yaml.parse(parts[1].trim());
+            const frontMatter = parseTopLevelObjectYaml(parts[1]);
             const date = frontMatter && frontMatter.date;
             if (date) {
                 const rdate = new Date(Date.parse(date));
@@ -84,7 +105,7 @@ async function main() {
     console.warn(`Found ${fileCount} files. Moved drafts: ${draftCount}`);
 
     if (draftCount > 0) {
-        const remote_repo=`https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git`;
+        const remote_repo = `https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git`;
         await execFile('git', ['commit', '-m', GIT_MESSAGE]);
         await execFile('git', ['push', remote_repo, `HEAD:${INPUT_BRANCH}`, '--follow-tags', '--force']);
     }
