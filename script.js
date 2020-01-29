@@ -76,7 +76,7 @@ function zeroPad(num, count, radix = 10) {
     return ("0".repeat(count) + str).substr(-count);
 }
 function formatDate(date) {
-    return zeroPad(date.getFullYear(), 4) + "-" + zeroPad(date.getMonth(), 2) + "-" + zeroPad(date.getDate(), 2);
+    return zeroPad(date.getFullYear(), 4) + "-" + zeroPad((date.getMonth()+1), 2) + "-" + zeroPad(date.getDate(), 2);
 }
 function parseTopLevelObjectYaml(yaml) {
     //const out = new Map<string, string>();
