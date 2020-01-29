@@ -31,7 +31,7 @@ function zeroPad(num: number, count: number, radix: number = 10): string {
 }
 
 function formatDate(date: Date) {
-    return zeroPad(date.getFullYear(), 4) + "-" + zeroPad(date.getMonth(), 2) + "-" + zeroPad(date.getDate(), 2)
+    return zeroPad(date.getFullYear(), 4) + "-" + zeroPad(date.getMonth()+1, 2) + "-" + zeroPad(date.getDate(), 2)
 }
 
 function parseTopLevelObjectYaml(yaml: string): any {
