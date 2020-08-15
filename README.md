@@ -1,6 +1,6 @@
 # github-action-jekyll-publish-drafts
 
-Explores the `_draft` folder of your jekyll repository, and publishes articles with the `date` frontmatter greater than the current time.
+Explores the `_drafts` folder of your jekyll repository, and publishes articles with the `date` frontmatter greater than the current time.
 
 ```yaml
 steps:
